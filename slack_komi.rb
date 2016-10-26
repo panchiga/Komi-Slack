@@ -1,6 +1,44 @@
 require 'slack-ruby-client'
+require './func_google'
 
 TOKEN = ENV["SLACK_TOKEN"]
+
+R18_LIST = File.foreach('wordlist.txt').map do |word|
+  word.chomp
+end
+R18_LIST.freeze
+
+def r18_word? text
+  trim_text = text.split("しよう")[0]
+  p trim_text
+  return r18_check_google(trim_text)
+  #R18_LIST.each do |word|
+    #if text.include?(word)
+    #  return true
+    #end
+  #end
+
+  #return false
+end
+
+#text = 'ぴよぴよ'
+#google searchで「ぴよぴよ」を検索
+def r18_check_google text
+  total_off  = google_search(text, "off")
+  total_high = google_search(text, "high")
+  
+  puts text 
+  puts "safe off : #{total_off}"
+  puts "safe high: #{total_high}" 
+
+  judge_res = (total_off.to_i - total_high.to_i) > total_high.to_i
+  puts judge_res
+
+  return judge_res
+end
+
+  
+
 
 Slack.configure do |config|
   config.token = TOKEN
@@ -13,8 +51,15 @@ client.on :hello do
 end
 
 client.on :message do |data|
-  if data['text'].size > 1
-    client.message channel:  data['channel'], text:'...'
+  if !data['text'][/しよう(。|\.)*/].nil?
+    if r18_word?(data['text'])
+      sleep(3)
+      client.message channel: data['channel'], text: '"そして古見さんは石になった。"'
+    else
+      client.message channel: data['channel'], text: 'ﾌﾝｽ!'
+    end
+  else 
+    client.message channel: data['channel'], text:'...'
   end
 end
 
