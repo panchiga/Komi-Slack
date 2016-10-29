@@ -1,5 +1,6 @@
 require 'slack-ruby-client'
 require './func_google'
+require './func_mecab'
 
 TOKEN = ENV["SLACK_TOKEN"]
 
@@ -9,9 +10,10 @@ end
 R18_LIST.freeze
 
 def r18_word? text
-  trim_text = text.split("しよう")[0]
-  p trim_text
-  return r18_check_google(trim_text)
+  noun_arr  = pickup_noun(text)
+  nouns_str = noun_arr.join(' ')
+  p nouns_str
+  return r18_check_google(nouns_str)
   #R18_LIST.each do |word|
     #if text.include?(word)
     #  return true

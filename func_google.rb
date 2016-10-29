@@ -76,6 +76,7 @@ def google_search text, r18 = "off"
       #p JSON.parse(response.body)
       res_json = JSON.parse(response.body)
       total = res_json.dig("queries","request",0,"totalResults")
+      puts total
       return total
       # 3xx系
     when Net::HTTPRedirection
